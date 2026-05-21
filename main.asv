@@ -1,0 +1,48 @@
+clear all, close all, clc
+
+%% Set up paths
+
+addpath ./bowtie
+addpath ./optim
+addpath ./optim/utils
+addpath ./segmentation
+addpath ./utils
+addpath ./visualization
+
+%% Note: You need CATSIM for this to work!
+
+catsim_path = '/media/data/catsim/Git_20250113_downloaded_2025_01_23/Git_20250113/main_GE';
+addpath(genpath(catsim_path))
+
+%% Set root data directory
+
+data_dir = './data';
+phantom_case = 50;
+
+%% Params
+
+visualization = 1; % generate plots in ./visualization/plots
+
+%% Load data
+
+[a, aRef, seg, labels, pixelstomm] = LoadData(data_dir, phantom_case, visualization);
+aC = a{3:4};
+%% Process data
+
+[AB, AR, AC, MaskTot] = PreprocessData(a, aRef, seg, labels, pixelstomm, visualization);
+
+%% Solve 
+
+AC_est = Solve(AB, AR);                   % Estimated contrast sinograms
+
+if visualization
+   plot_estimated_sinos(AC_est, AC)
+end
+
+%% Reconstruct
+
+aC_est = Recon(AC_est, MaskTot);          % Estimated contrast images     
+
+
+
+
